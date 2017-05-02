@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+div { background-color: red; border: solid 2px black; margin: 30px; }
+</style>
+<script>
+var count2 = 0;
+var countc =0;
+function addpost()                                                  // <h1 onclick="this.innerHTML='Ooops!'">Click on this text!</h1>
+
+{
+	var a = prompt("Ente a recent achievement: ");
+    var division = document.createElement("div");
+		division.setAttribute("id","division"+count2);
+		
+    var post = document.createElement("pre");
+		post.textContent = a;
+		
+
+		
+    count2++;
+	
+    division.appendChild(post);
+    division.appendChild(lbl);
+    division.appendChild(btn1);
+    division.appendChild(btn2);
+    division.appendChild(btn3);
+    document.body.appendChild(division);
+}
+function del1(l)
+{
+    var but = document.getElementById(l);
+	var post = but.parentNode;
+	document.body.removeChild(post);
+}
+
+function like1(l)
+{
+	var but = document.getElementById(l);
+	var post = but.parentNode;
+	var status= post.firstChild;
+	var lab = status.nextSibling;
+	lab.textContent= (parseInt(lab.textContent) + 1)+" Likes";
+}
+
+function comment(l)
+{
+var a = prompt("Enter a recent Achievement:    ");
+
+var division2 = document.createElement("div");
+	division2.setAttribute("id", "f1");
+	
+var comm= document.createElement("pre");
+	comm.textContent = a;
+	
+division2.appendChild(comm);
+
+var but = document.getElementById(l);
+var post = but.parentNode;
+	
+post.appendChild(division2);
+
+
+	
+	countc++;
+   
+division2.appendChild(btn1);
+division2.appendChild(btn2);
+}
+
+
+</script>
+</head>
+<body>
+<h1> <center>Academic and non academic Achievements</center> </h1>
+<center> <button onclick = "addpost()"> Add achievement</button> </center>
+</body>
+<footer> By Vishwas.S, PES University. </footer>
+</html>

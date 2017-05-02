@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Time Chart</title>
+    <script src="javascript/Chart.bundle.js"></script>
+    <script src="javascript/utils.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/w3.css">
+    <style>
+    canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+	table{
+		border: solid 1px;
+	}
+    </style>
+
+</head>
+
+<body>
+
+
+<div class="w3-bar w3-black">
+  <a width="100%" class="w3-bar-item w3-button" href="homepage.html">Home</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">6th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">7th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">8th Standard</a>
+    <a class="w3-bar-item w3-button" href="ClassWise.html">9th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">10th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">11th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">12th Standard</a>
+   <a class="w3-bar-item w3-button" href="SubjectWise.html">Compare all</a>
+   <a class="w3-bar-item w3-button" href="TimeManagement.html">Manage your Time</a>
+</div>
+
+<div>
+    <form class="form-horizontal well">
+
+      <fieldset>
+          <label for="csvFileInput"> <strong>CSV File:</strong>
+          </label>
+          <input type="file" id="csvFileInput" onchange="handleFiles(this.files)"
+          accept=".csv">
+        </div>
+      </fieldset>
+    </form>
+    <div id="output">
+    </div>
+  </div>
+  <br>
+  <br>
+ 
+
+  
+
+    <div id="container" style="width: 75%;">
+        <canvas id="canvas"></canvas>
+    </div>
+  
+ <script>
+function handleFiles(files) {
+	// Check for the various File API support.
+	if (window.FileReader) {
+		// FileReader are supported.
+		getAsText(files[0]);
+	} else {
+		alert('FileReader are not supported in this browser.');
+	}
+}
+
+function getAsText(fileToRead) {
+	var reader = new FileReader();
+	// Handle errors load
+	reader.onload = loadHandler;
+	reader.onerror = errorHandler;
+	// Read file into memory as UTF-8      
+	reader.readAsText(fileToRead);
+}
+
+function loadHandler(event) {
+	var csv = event.target.result;
+	processData(csv);             
+}
+
+function processData(csv) {
+    var allTextLines = csv.split(/\r\n|\n/);
+    var lines = [];
+    while (allTextLines.length) {
+        lines.push(allTextLines.shift().split(','));
+    }
+	
+	drawOutput(lines);
+}
+
+function errorHandler(evt) {
+	if(evt.target.error.name == "NotReadableError") {
+		alert("Canno't read file !");
+	}
+}
+
+function drawOutput(lines){
+	//Clear previous data
+	document.getElementById("output").innerHTML = "";
+	var table = document.createElement("table");
+	for (var i = 0; i < lines.length; i++) {
+		var row = table.insertRow(-1);
+		for (var j = 0; j < lines[i].length; j++) {
+			var firstNameCell = row.insertCell(-1);
+			firstNameCell.appendChild(document.createTextNode(lines[i][j]));
+		}
+	}
+	console.log(lines);
+	document.getElementById("output").appendChild(table);
+	radar(lines);
+}
+   
+	
+    function radar(lines)
+	{
+		lines[0].toString()	.trim();
+		var t0 = lines[0].toString().split(',');
+		console.log(t0);
+		
+		lines[1].toString()	.trim();
+		var t1 = lines[1].toString().split(',');
+		t1=t1.map(function(item){return parseInt(item, 10);});
+		console.log(t1);
+		
+	
+	
+	        
+    
+    var color = Chart.helpers.color;
+    var config = {
+        type: 'radar',
+        data: {
+            labels: t0,
+            datasets: [{
+                label: "My First dataset",
+                backgroundColor: color(window.chartColors.red).alpha(0.2).rgbString(),
+                borderColor: window.chartColors.red,
+                pointBackgroundColor: window.chartColors.red,
+                data: t1
+            }]
+        },
+        options: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Chart.js Radar Chart'
+            },
+            scale: {
+              ticks: {
+                beginAtZero: true
+              }
+            }
+        }
+    };
+
+     
+        window.myRadar = new Chart(document.getElementById("canvas"), config);
+    
+
+  /*  document.getElementById('randomizeData').addEventListener('click', function() {
+        config.data.datasets.forEach(function(dataset) {
+            dataset.data = dataset.data.map(function() {
+                return randomScalingFactor();
+            });
+        });
+
+        window.myRadar.update();
+    });
+
+    var colorNames = Object.keys(window.chartColors);
+    document.getElementById('addDataset').addEventListener('click', function() {
+        var colorName = colorNames[config.data.datasets.length % colorNames.length];;
+        var newColor = window.chartColors[colorName];
+
+        var newDataset = {
+            label: 'Dataset ' + config.data.datasets.length,
+            borderColor: newColor,
+            backgroundColor: color(newColor).alpha(0.2).rgbString(),
+            pointBorderColor: newColor,
+            data: [],
+        };
+
+        for (var index = 0; index < config.data.labels.length; ++index) {
+            newDataset.data.push(randomScalingFactor());
+        }
+
+        config.data.datasets.push(newDataset);
+        window.myRadar.update();
+    });
+
+    document.getElementById('addData').addEventListener('click', function() {
+        if (config.data.datasets.length > 0) {
+            config.data.labels.push('dataset #' + config.data.labels.length);
+
+            config.data.datasets.forEach(function (dataset) {
+                dataset.data.push(randomScalingFactor());
+            });
+
+            window.myRadar.update();
+        }
+    });
+
+    document.getElementById('removeDataset').addEventListener('click', function() {
+        config.data.datasets.splice(0, 1);
+        window.myRadar.update();
+    });
+
+    document.getElementById('removeData').addEventListener('click', function() {
+        config.data.labels.pop(); // remove the label first
+
+        config.data.datasets.forEach(function(dataset) {
+            dataset.data.pop();
+        });
+
+        window.myRadar.update();
+    }); */
+	}
+    </script>
+</body>
+<footer> By Vishwas.S, PES University. </footer>
+</html>

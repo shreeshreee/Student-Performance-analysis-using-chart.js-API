@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Line Chart</title>
+    <script src="javascript/Chart.bundle.js"></script>
+    <script src="javascript/utils.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href=" css/w3.css">
+    <style>
+    canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+	table{
+		border: solid 1px;
+	}
+    </style>
+
+</head>
+
+<body>
+
+
+<div class="w3-bar w3-black">
+  <a width="100%" class="w3-bar-item w3-button" href="homepage.html">Home</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">6th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">7th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">8th Standard</a>
+    <a class="w3-bar-item w3-button" href="ClassWise.html">9th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">10th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">11th Standard</a>
+  <a class="w3-bar-item w3-button" href="ClassWise.html">12th Standard</a>
+   <a class="w3-bar-item w3-button" href="SubjectWise.html">Compare all</a>
+   <a class="w3-bar-item w3-button" href="TimeManagement.html">Manage your Time</a>
+</div>
+
+<div>
+    <form class="form-horizontal well">
+      <fieldset>
+          <label for="csvFileInput"> <strong>CSV File:</strong>
+          </label>
+          <input type="file" id="csvFileInput" onchange="handleFiles(this.files)"
+          accept=".csv">
+        </div>
+      </fieldset>
+    </form>
+    <div id="output">
+    </div>
+  </div>
+  <br>
+  <br>
+ 
+ <button id="addDataset" onclick= Compare()>Compare with Previous Marks</button>
+
+  
+
+    <div id="container" style="width: 75%;">
+        <canvas id="canvas"></canvas>
+    </div>
+  
+    <script>
+	var lines = [];
+	var check = 4 ;
+	function handleFiles(files) {
+	// Check for the various File API support.
+	if (window.FileReader) {
+		// FileReader are supported.
+		getAsText(files[0]);
+	} else {
+		alert('FileReader are not supported in this browser.');
+	}
+}
+
+function getAsText(fileToRead) {
+	var reader = new FileReader();
+	// Handle errors load
+	reader.onload = loadHandler;
+	reader.onerror = errorHandler;
+	// Read file into memory as UTF-8      
+	reader.readAsText(fileToRead);
+}
+
+function loadHandler(event) {
+	var csv = event.target.result;
+	processData(csv);             
+}
+
+function processData(csv) {
+    var allTextLines = csv.split(/\r\n|\n/);
+    
+    while (allTextLines.length) {
+        lines.push(allTextLines.shift().split(','));
+    }
+	
+	drawOutput(lines);
+}
+
+function Compare()
+{
+	console.log(lines);
+	lineGraph(lines, check);
+	check-- ; 
+}
+
+function errorHandler(evt) {
+	if(evt.target.error.name == "NotReadableError") {
+		alert("Canno't read file !");
+	}
+}
+
+function drawOutput(lines){
+	//Clear previous data
+	document.getElementById("output").innerHTML = "";
+	var table = document.createElement("table");
+	for (var i = 0; i < lines.length; i++) {
+		var row = table.insertRow(-1);
+		for (var j = 0; j < lines[i].length; j++) {
+			var firstNameCell = row.insertCell(-1);
+			firstNameCell.appendChild(document.createTextNode(lines[i][j]));
+		}
+	}
+	console.log(lines);
+	document.getElementById("output").appendChild(table);
+	lineGraph(lines, check);
+}
+    function lineGraph(lines, check)
+	{
+	    //   Split Function for data
+		lines[0].toString()	.trim();
+		var t0 = lines[0].toString().split(',');
+		console.log(t0);
+		
+		
+		
+		lines[1].toString()	.trim();
+		var t1 = lines[1].toString().split(',');
+		t1=t1.map(function(item){return parseInt(item, 10);});
+		console.log(t1);
+		
+		lines[2].toString()	.trim();
+		var t2 = lines[2].toString().split(',');
+		t2=t2.map(function(item){return parseInt(item, 10);});
+		console.log(t2);
+		
+		lines[3].toString()	.trim();
+		var t3 = lines[3].toString().split(',');
+		t3=t3.map(function(item){return parseInt(item, 10);});
+		console.log(t3);
+		
+		lines[4].toString()	.trim();
+		var t4 = lines[4].toString().split(',');
+		t4=t4.map(function(item){return parseInt(item, 10);});
+		console.log(t4);
+			
+		lines[5].toString()	.trim();
+		var t5 = lines[5].toString().split(',');
+		t5=t5.map(function(item){return parseInt(item, 10);});
+		console.log(t5);
+		var t= [t1, t2, t3, t4,t5];
+		
+		console.log(datafill(5,t));
+		var index ;
+		if(check==0)
+		{
+		index=4;
+		check=4;
+		}
+		else 
+		index=check;
+		var config = {
+            type: 'line',
+            data: {
+                labels: t0,
+                datasets: datafill(index,t)
+            },
+            options: {
+                responsive: true,
+                title:{
+                    display:true,
+                    text: lines[6]
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Month'
+                        }
+                    }],
+                    yAxes: [{ticks: {
+								beginAtZero: true
+							},
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+
+       
+            var ctx = document.getElementById("canvas").getContext("2d");
+            window.myLine = new Chart(ctx, config);
+       
+
+		
+          
+        
+
+
+
+	}
+	
+  /*	function add(){
+	var colorNames = Object.keys(window.chartColors);
+        document.getElementById('addDataset').addEventListener('click', function() {
+            var colorName = colorNames[config.data.datasets.length % colorNames.length];
+            var newColor = window.chartColors[colorName];
+            var newDataset = {
+                label: 'Dataset ' + config.data.datasets.length,
+                backgroundColor: newColor,
+                borderColor: newColor,
+                data: [],
+                fill: false
+            };
+
+            for (var index = 0; index < config.data.labels.length; ++index) {
+                newDataset.data.push(randomScalingFactor());
+            }
+
+            config.data.datasets.push(newDataset);
+            window.myLine.update();
+        });
+		
+		}
+
+		function remove(){
+		document.getElementById('removeDataset').addEventListener('click', function() {
+            config.data.datasets.splice(0, 1);
+            window.myLine.update();
+        }); 
+		} */
+		
+		function datafill(index, t)
+		{
+		colorArray=[window.chartColors.red,window.chartColors.blue,window.chartColors.green,window.chartColors.yellow,window.chartColors.black];
+		var dataFill=[];
+			for(var i=index;i>=0;i--)
+			{
+                var dataEle=   { label: (i+6)+"th std",
+                    backgroundColor: colorArray[i],
+                    borderColor: colorArray[i],
+                    data: t[i],
+                    fill: false};
+				dataFill.push(dataEle);	
+			}
+			return dataFill;
+		}
+
+    </script>
+</body>
+<footer> By Vishwas.S, PES University. </footer>
+</html>
